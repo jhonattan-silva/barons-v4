@@ -82,11 +82,17 @@ function barons_enqueue_scripts() {
     // jQuery (WordPress já inclui, use a versão dele)
     wp_enqueue_script('jquery');
     
-    // Custom JS
-    wp_enqueue_script('barons-scripts', get_template_directory_uri() . '/js/meus_scripts.js', array('jquery'), '3.0', true);
-    
-    // CSS do tema
-    wp_enqueue_style('barons-style', get_stylesheet_uri(), array('bootstrap-css'), '3.0');
+    // CSS e JS do tema com cache inválido automaticamente após cada alteração
+    $theme_directory = get_stylesheet_directory();
+    $style_version = file_exists($theme_directory . '/style.css')
+        ? filemtime($theme_directory . '/style.css')
+        : '3.0';
+    $script_version = file_exists($theme_directory . '/js/meus_scripts.js')
+        ? filemtime($theme_directory . '/js/meus_scripts.js')
+        : '3.0';
+
+    wp_enqueue_script('barons-scripts', get_template_directory_uri() . '/js/meus_scripts.js', array('jquery'), $script_version, true);
+    wp_enqueue_style('barons-style', get_stylesheet_uri(), array('bootstrap-css'), $style_version);
     
     // Adiciona suporte a comentários threaded
     if (is_singular() && comments_open() && get_option('thread_comments')) {
@@ -177,7 +183,7 @@ function get_post_featured_image_url($post_id = null) {
 	}
 	
 	// 3. Retorna a imagem padrão
-	return get_site_url() . "/wp-content/uploads/imagens/default.png";
+	return barons_get_default_image_url();
 }
 
 // Pega a primeira imagem do conteúdo do post (cartaz)
@@ -189,7 +195,7 @@ function pegar_primeira_imagem_conteudo($post_id = null) {
 
 	$post = get_post($post_id);
 	if (!isset($post->post_content) || empty($post->post_content)) {
-		return get_site_url() . "/wp-content/uploads/imagens/default.png";
+		return barons_get_default_image_url();
 	}
 
 	$output = preg_match_all('/<img.+src=[\'\"]([^\'\"]+)[\'\"].*>/i', $post->post_content, $matches);
@@ -199,7 +205,7 @@ function pegar_primeira_imagem_conteudo($post_id = null) {
 		return $matches[1][0];
 	}
 
-	return get_site_url() . "/wp-content/uploads/imagens/default.png";
+	return barons_get_default_image_url();
 }
 
 // Pega a primeira imagem do post (prioriza a imagem destacada) e remove do conteúdo para não duplicar
@@ -207,7 +213,7 @@ function catch_that_image() {
 	global $post;
 	
 	if (!isset($post)) {
-		return get_site_url() . "/wp-content/uploads/imagens/default.png";
+		return barons_get_default_image_url();
 	}
 	
 	$image_url = get_post_featured_image_url($post->ID);
@@ -228,46 +234,51 @@ function remove_first_image_from_content($content) {
 add_filter('the_content', 'remove_first_image_from_content', 1);
 
 // Define automaticamente a primeira imagem como imagem destacada ao salvar/publicar
-add_action('save_post_post', 'set_first_image_as_thumbnail');
+add_action('save_post_post', 'set_first_image_as_thumbnail', 10, 1);
 function set_first_image_as_thumbnail($post_id) {
-	// Evita loops infinitos
 	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
 		return;
 	}
-	
-	// Se já houver imagem destacada, não faz nada
+	if (wp_is_post_revision($post_id)) {
+		return;
+	}
+	if (get_post_type($post_id) !== 'post') {
+		return;
+	}
 	if (has_post_thumbnail($post_id)) {
 		return;
 	}
-	
+
 	$post = get_post($post_id);
-	
-	// Procura imagens no conteúdo
-	if (preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*?(?:alt=[\'"]([^\'"]*)[\'"])?.*?>/i', $post->post_content, $matches)) {
-		$image_url = $matches[1][0];
-		
-		// Tenta encontrar a imagem pela URL no banco (uploads)
-		$attachment_id = get_attachment_id_by_url($image_url);
-		
-		if ($attachment_id) {
-			set_post_thumbnail($post_id, $attachment_id);
-		}
+	if (!$post || empty($post->post_content)) {
+		return;
+	}
+
+	preg_match_all('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $post->post_content, $matches);
+	if (empty($matches[1][0])) {
+		return;
+	}
+
+	$attachment_id = get_attachment_id_by_url($matches[1][0]);
+	if ($attachment_id) {
+		set_post_thumbnail($post_id, $attachment_id);
 	}
 }
 
 // Função auxiliar para pegar o ID do anexo pela URL
 function get_attachment_id_by_url($url) {
+	$attachment_id = attachment_url_to_postid($url);
+	if ($attachment_id) {
+		return $attachment_id;
+	}
+
 	global $wpdb;
-	
-	$attachment = $wpdb->get_var(
+	return (int) $wpdb->get_var(
 		$wpdb->prepare(
-			"SELECT ID FROM {$wpdb->posts} 
-			WHERE guid=%s AND post_type='attachment'",
-			$url
+			"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND guid = %s LIMIT 1",
+			esc_url_raw($url)
 		)
 	);
-	
-	return $attachment;
 }
 
 // Define o tamanho do resumo na página inicial
@@ -359,17 +370,11 @@ add_filter('style_loader_src', 'barons_remove_wp_version_strings');
  * Adiciona async e defer em scripts externos para melhor performance
  */
 function barons_add_async_defer_attributes($tag, $handle) {
-    $scripts_to_defer = array('bootstrap-js', 'font-awesome');
-    $scripts_to_async = array('barons-scripts');
-    
-    if (in_array($handle, $scripts_to_defer)) {
-        return str_replace(' src', ' defer src', $tag);
+    if ($handle === 'bootstrap-js' || $handle === 'barons-scripts') {
+        if (strpos($tag, ' defer') === false) {
+            return str_replace(' src', ' defer src', $tag);
+        }
     }
-    
-    if (in_array($handle, $scripts_to_async)) {
-        return str_replace(' src', ' async src', $tag);
-    }
-    
     return $tag;
 }
 add_filter('script_loader_tag', 'barons_add_async_defer_attributes', 10, 2);
@@ -406,4 +411,10 @@ if (file_exists(get_template_directory() . '/inc/seo.php')) {
 // Melhorias de segurança
 if (file_exists(get_template_directory() . '/inc/security.php')) {
     require_once get_template_directory() . '/inc/security.php';
+}
+
+// URL da imagem padrão, respeitando uploads personalizados e HTTPS
+function barons_get_default_image_url() {
+	$upload_dir = wp_upload_dir();
+	return trailingslashit($upload_dir['baseurl']) . 'imagens/default.png';
 }
