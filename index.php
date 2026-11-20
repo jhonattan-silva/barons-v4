@@ -71,7 +71,7 @@
             <img src="<?php echo esc_url($item['image']); ?>" class="d-block w-100" alt="<?php echo esc_attr($item['title']); ?>" />
             <div class="carousel-caption">
                 <?php if (!empty($item['link'])) : ?>
-                    <span class="titulo"><a href="<?php echo esc_url($item['link']); "> <?php echo esc_html($item['title']); ?> </a></span>
+                    <span class="titulo"><a href="<?php echo esc_url($item['link']); ?>"><?php echo esc_html($item['title']); ?></a></span>
                 <?php else : ?>
                     <span class="titulo"><?php echo esc_html($item['title']); ?></span>
                 <?php endif; ?>
@@ -111,9 +111,9 @@
 		        <?php
 		        $post_categories = get_the_category();
 		        $post_accent = 'var(--color-barons-gold)';
-		        if (!empty($post_categories)) {
+		        if (!empty($post_categories) && function_exists('barons_get_category')) {
 		            $post_category = barons_get_category($post_categories[0]->slug);
-		            if ($post_category && !empty($post_category['color'])) {
+		            if (!empty($post_category['color'])) {
 		                $post_accent = $post_category['color'];
 		            }
 		        }

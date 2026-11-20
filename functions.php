@@ -164,25 +164,26 @@ function get_carousel_item_data($cat_id) {
 function get_post_featured_image_url($post_id = null) {
 	if (!$post_id) {
 		global $post;
+		if (!isset($post) || !is_a($post, 'WP_Post')) {
+			return barons_get_default_image_url();
+		}
 		$post_id = $post->ID;
 	}
-	
-	// 1. Tentar a imagem destacada primeiro
+
 	if (has_post_thumbnail($post_id)) {
-		return wp_get_attachment_url(get_post_thumbnail_id($post_id));
+		$image_url = wp_get_attachment_image_url(get_post_thumbnail_id($post_id), 'full');
+		if ($image_url) {
+			return $image_url;
+		}
 	}
-	
-	// 2. Se não houver imagem destacada, procurar no conteúdo
+
 	$post = get_post($post_id);
-	if (isset($post->post_content) && !empty($post->post_content)) {
-		$output = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $post->post_content, $matches);
-		
-		if ($output && isset($matches[1][0]) && !empty($matches[1][0])) {
+	if ($post && preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"]/i', $post->post_content, $matches)) {
+		if (!empty($matches[1][0])) {
 			return $matches[1][0];
 		}
 	}
-	
-	// 3. Retorna a imagem padrão
+
 	return barons_get_default_image_url();
 }
 
