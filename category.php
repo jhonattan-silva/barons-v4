@@ -18,41 +18,66 @@ if (! $current_category) {
     get_footer();
     exit;
 }
+
+$category_config = function_exists('barons_get_category')
+    ? barons_get_category($current_category->slug)
+    : null;
+$category_color = $category_config ? $category_config['color'] : 'var(--color-barons-gold)';
 ?>
 
-<div class="container-fluid">
-    <div class="row col-12">
-        <h1 class="text-center category-<?php echo esc_attr($current_category->slug); ?>">
-            <?php 
-            echo esc_html($current_category->name);
+<header class="category-hero category-<?php echo esc_attr($current_category->slug); ?>" style="--category-accent: <?php echo esc_attr($category_color); ?>;">
+    <div class="category-hero__inner">
+        <span class="category-hero__eyebrow"><?php esc_html_e('Explore a categoria', 'barons'); ?></span>
+        <h1><?php echo esc_html($current_category->name); ?></h1>
+        <p>
+            <?php
+            printf(
+                esc_html(_n('%d publicação', '%d publicações', (int) $current_category->count, 'barons')),
+                (int) $current_category->count
+            );
             ?>
-        </h1>
+        </p>
     </div>
-</div>
+</header>
 
-<div class="main-conteudo container-fluid">
-    <div class="row">
-        <div class="main-posts col-12 col-sm-9 row h-100">
+<div class="main-conteudo container-fluid category-listing" style="--category-accent: <?php echo esc_attr($category_color); ?>;">
+    <div class="row g-0">
+        <div class="main-posts col-12 col-lg-9">
             <?php 
             if (have_posts()) : 
                 while (have_posts()) : 
                     the_post(); 
             ?>
-            <div id="post-<?php the_ID(); ?>" <?php post_class("card-post col-md-5 col-12 row border"); ?>>
-                <div class="card-thumbnail col">
+            <article id="post-<?php the_ID(); ?>" <?php post_class("card-post"); ?>>
+                <div class="card-thumbnail">
                     <a title="<?php the_title_attribute(); ?>" href="<?php the_permalink(); ?>">
-                        <?php the_post_thumbnail(array(200, 350)); ?>
+                        <?php
+                        if (has_post_thumbnail()) {
+                            the_post_thumbnail('medium_large', array(
+                                'class' => 'category-card-thumb',
+                                'alt'   => esc_attr(get_the_title()),
+                            ));
+                        } else {
+                            $featured_url = get_post_featured_image_url();
+                            echo '<img class="category-card-thumb" src="' . esc_url($featured_url) . '" alt="' . esc_attr(get_the_title()) . '" />';
+                        }
+                        ?>
                     </a>
                 </div>
-                <div class="card-texto col">
-                    <h3>
+                <div class="card-texto">
+                    <h2>
                         <a href="<?php the_permalink(); ?>">
                             <?php the_title(); ?>
                         </a>
-                    </h3>
-                    <p><?php the_excerpt(); ?></p>
+                    </h2>
+                    <?php if (get_the_excerpt()) : ?>
+                        <p><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 24, '…')); ?></p>
+                    <?php endif; ?>
+                    <a class="card-read-more" href="<?php the_permalink(); ?>">
+                        <?php esc_html_e('Ler matéria', 'barons'); ?> <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-            </div>
+            </article>
             <?php 
                 endwhile;    
             else: 
@@ -62,8 +87,7 @@ if (! $current_category) {
             endif; 
             ?>
 
-            <!-- PAGINAÇÃO -->
-            <div class="paginacao d-flex justify-content-center align-items-center">
+            <nav class="paginacao d-flex justify-content-center align-items-center" aria-label="<?php esc_attr_e('Paginação da categoria', 'barons'); ?>">
                 <?php 
                 the_posts_pagination(array(
                     'mid_size' => 2,
@@ -72,7 +96,7 @@ if (! $current_category) {
                     'screen_reader_text' => __('Mais Posts', 'barons'),
                 )); 
                 ?>
-            </div>
+            </nav>
         </div>
 
         <?php get_sidebar(); ?>
