@@ -71,7 +71,7 @@
             <img src="<?php echo esc_url($item['image']); ?>" class="d-block w-100" alt="<?php echo esc_attr($item['title']); ?>" />
             <div class="carousel-caption">
                 <?php if (!empty($item['link'])) : ?>
-                    <span class="titulo"><a href="<?php echo esc_url($item['link']); ?>"> <?php echo esc_html($item['title']); ?> </a></span>
+                    <span class="titulo"><a href="<?php echo esc_url($item['link']); "> <?php echo esc_html($item['title']); ?> </a></span>
                 <?php else : ?>
                     <span class="titulo"><?php echo esc_html($item['title']); ?></span>
                 <?php endif; ?>
@@ -97,9 +97,9 @@
 
 
 
-    <div class="main-conteudo container-fluid "><!-- a partir do carrossel até chegar no footer -->
-    	<div class="row">
-            <div class="main-posts col-12 col-sm-9 row h-100"> <!-- toda listagem de posts até a paginação-->
+    <div class="main-conteudo container-fluid category-listing home-listing"><!-- a partir do carrossel até chegar no footer -->
+    	<div class="row g-0">
+            <div class="main-posts col-12 col-lg-9"> <!-- toda listagem de posts até a paginação-->
                 <?php
                 $home_query = new WP_Query(array(
                 	'post_type' => 'post',
@@ -108,25 +108,42 @@
                 	'ignore_sticky_posts' => true
                 ));
                 if ($home_query->have_posts()) : while ($home_query->have_posts()) : $home_query->the_post(); ?> <!-- verifica se tem posts--> 
-		        <div id="post-<?php the_ID(); ?>" <?php post_class("card-post col-md-5 col-12 row border"); ?> > <!-- cmd para identificar a categoria e criar a classe com o nome + a classe md-5 -->
-		            <div class="card-thumbnail col">
+		        <?php
+		        $post_categories = get_the_category();
+		        $post_accent = 'var(--color-barons-gold)';
+		        if (!empty($post_categories)) {
+		            $post_category = barons_get_category($post_categories[0]->slug);
+		            if ($post_category && !empty($post_category['color'])) {
+		                $post_accent = $post_category['color'];
+		            }
+		        }
+		        ?>
+		        <article id="post-<?php the_ID(); ?>" <?php post_class('card-post'); ?> style="--category-accent: <?php echo esc_attr($post_accent); ?>;">
+		            <div class="card-thumbnail">
 		            	<a title="<?php the_title_attribute(); ?>" href="<?php the_permalink(); ?>">
-		            		<?php 
-		            		// Mostrar featured image com fallback para primeira imagem do conteúdo
+		            		<?php
 		            		if (has_post_thumbnail()) {
-		            			the_post_thumbnail('medium');
+		            			the_post_thumbnail('medium_large', array(
+		            				'class' => 'category-card-thumb',
+		            				'alt'   => esc_attr(get_the_title()),
+		            			));
 		            		} else {
 		            			$featured_url = get_post_featured_image_url();
-		            			echo '<img src="' . esc_url($featured_url) . '" alt="' . esc_attr(get_the_title()) . '" />';
+		            			echo '<img class="category-card-thumb" src="' . esc_url($featured_url) . '" alt="' . esc_attr(get_the_title()) . '" />';
 		            		}
 		            		?>
 		            	</a>
-		            </div><!--img do post-->
-					<div class="card-texto col">
-			            <h3 > <a href="<?php the_permalink(); ?>"> <?php the_title(); ?> </a> </h3> <!-- Chama o titulo do post--><!-- permalink faz ele linkar com o post correspondente-->
-			            <p> <?php the_excerpt(); ?> </p> <!--the_content(); Chama o conteudo do post, ja o excerpt mostra o resumo-->
-			        </div>
-		        </div>
+		            </div>
+		            <div class="card-texto">
+		            	<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+		            	<?php if (get_the_excerpt()) : ?>
+		            		<p><?php echo wp_kses_post(wp_trim_words(get_the_excerpt(), 24, '…')); ?></p>
+		            	<?php endif; ?>
+		            	<a class="card-read-more" href="<?php the_permalink(); ?>">
+		            		<?php esc_html_e('Ler matéria', 'barons'); ?> <span aria-hidden="true">→</span>
+		            	</a>
+		            </div>
+		        </article>
                 <?php endwhile; ?>    
                 <?php else: ?>
                 <?php endif; ?>

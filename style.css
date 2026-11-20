@@ -645,6 +645,45 @@ body a:focus {
 	margin: 2rem 0;
 }
 
+/**
+ * Legendas modernas de imagens
+ */
+.wp-caption,
+.entry-content figure,
+.entry-content .wp-block-image {
+	max-width: 100%;
+	margin: 2rem auto;
+}
+
+.wp-caption img,
+.entry-content figure img,
+.entry-content .wp-block-image img {
+	display: block;
+	margin: 0 auto;
+	border-radius: 10px;
+}
+
+.wp-caption-text,
+.entry-content figcaption,
+	entry-content .wp-element-caption,
+	entry-content .wp-block-image figcaption {
+	width: fit-content;
+	max-width: 92%;
+	margin: 0.65rem auto 0;
+	padding: 0.45rem 0.8rem;
+	border-left: 2px solid var(--reading-accent, var(--color-barons-gold));
+	border-radius: 0 6px 6px 0;
+	background: rgba(255, 255, 255, 0.055);
+	font-family: var(--font-primary);
+	font-size: 0.82rem;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 1.45;
+	letter-spacing: 0.01em;
+	text-align: left;
+	color: rgba(255, 255, 255, 0.72);
+}
+
 .entry-content code,
 .entry-content pre {
 	font-family: Consolas, Monaco, monospace;
@@ -1318,8 +1357,9 @@ button:focus:not(:focus-visible) {
 	}
 }
 
-/* PAGINAÇÃO MODERNA */
-.paginacao {
+/* PAGINAÇÃO MODERNA — regras únicas */
+.paginacao,
+.category-listing .paginacao {
 	width: 100%;
 	margin: 2.5rem 0 2rem;
 }
@@ -1353,7 +1393,7 @@ button:focus:not(:focus-visible) {
 	font-weight: 800;
 	line-height: 1;
 	text-decoration: none;
-	transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+	transition: all var(--transition-fast);
 }
 
 .paginacao .page-numbers:hover,
@@ -1379,10 +1419,6 @@ button:focus:not(:focus-visible) {
 .paginacao .dots {
 	border: 0;
 	background: transparent;
-}
-
-.screen-reader-text {
-	margin-top: 0;
 }
 
 @media (max-width: 575.98px) {
