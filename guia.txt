@@ -1,0 +1,65 @@
+CLASSES
+conteudo-total -> Abaixo do carousel, incluindo sidebar e os posts
+posts-box -> dentro do .conteudo-total, ao lado esquerdo do sidebares, carrega os posts
+sidebares -> dentro do .conteudo-total, ao lado direito do posts, carrega o sidebar
+
+
+.titulo e .subtitulo
+são as classes de titulo e subtitulo que aparecerão tanto no index como no post
+
+main-conteudo
+é o container maior, abaixo do carrosel e que inclui tudo, desde os posts até as sidebares (para ao chegar no footer)
+
+main-posts
+é a subdivisão do main-conteudo. Contém somente os posts c/ thumbs e paginação
+
+card-post
+é o card onde fica o post e sua respectiva thumb
+
+card-thumbnail
+é a thumb presente dentro do post
+
+.paginacao
+controla o container da paginação
+
+.screen-reader-text
+é o texto informando a paginação (padrao)
+
+.page-numbers 
+são os números da paginação (padrao)
+
+.page-numbers.current, a.page-numbers
+pagina atual da paginação (padrao)
+
+.pesquisa
+é todo o form de pesquisa
+
+.social-sidebar
+é a barra com os icones sociais
+
+.tags-sidebar
+o conteudo da nuvem de tags
+
+.tag-cloud-link
+são os links de tags
+
+.random-sidebar
+descubra o que não procurava
+
+.post-random
+é a div dos posts aleatórios, inclui: miniatura, titulo e subtitulo
+
+.lista-random
+lista de posts aleatorios da sidebar
+
+.img-destaque
+É o container com a imagem, titulo e sub
+
+.cartaz
+É a imagem destacada do single, full com o titulo e subtitulo (só a imagem)
+
+.titulo-single .subtitulo-single
+O titulo e sub do single
+
+.texto
+É o texto do post
