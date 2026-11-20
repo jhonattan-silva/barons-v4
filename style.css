@@ -489,24 +489,228 @@ body a:focus {
 
 
 .texto{
-/*	font-family: 'Roboto', sans-serif;
-	font-family: 'Open Sans', sans-serif;*/
-	font-family: 'Raleway', sans-serif;
-	color: #EEE2E2;
-	line-height: 25px;
-	font-size: 18px;
-	padding: 4%;
-	text-align: justify;
+	--reading-accent: var(--color-barons-gold);
+	font-family: var(--font-primary);
+	color: #e8e8eb;
+	line-height: 1.82;
+	font-size: clamp(1.05rem, 1.15vw, 1.125rem);
+	padding: clamp(2rem, 4vw, 4.5rem);
+	text-align: left;
+	overflow-wrap: break-word;
+}
+
+/* Cor da categoria aplicada somente à página de leitura */
+.category-games .texto { --reading-accent: var(--color-games); }
+.category-filmes .texto { --reading-accent: var(--color-filmes); }
+.category-series .texto { --reading-accent: var(--color-series); }
+.category-hqs .texto { --reading-accent: var(--color-hqs); }
+.category-livros .texto { --reading-accent: var(--color-livros); }
+.category-animes .texto { --reading-accent: var(--color-animes); }
+
+.entry-content {
+	max-width: 760px;
+	margin-inline: auto;
+	padding: clamp(1.5rem, 4vw, 3.25rem);
+	background: rgba(255, 255, 255, 0.025);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 14px;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+}
+
+.entry-content > *:first-child {
+	margin-top: 0;
+}
+
+.entry-content > *:last-child {
+	margin-bottom: 0;
+}
+
+.entry-content p {
+	margin: 0 0 1.35em;
+	color: #e3e3e6;
+	text-wrap: pretty;
+}
+
+.entry-content strong,
+.entry-content b {
+	color: #fff;
+	font-weight: 700;
+}
+
+.entry-content h2,
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.entry-content h6 {
+	font-family: var(--font-heading);
+	color: #f4f1e8;
+	clear: both;
+	text-wrap: balance;
+}
+
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+	font-weight: 700;
+	line-height: 1.25;
+	margin: 2.25em 0 0.75em;
+}
+
+.entry-content h2 {
+	font-size: clamp(1.7rem, 3vw, 2.25rem);
+	padding-bottom: 0.55rem;
+	border-bottom: 2px solid color-mix(in srgb, var(--reading-accent) 55%, transparent);
+}
+
+.entry-content h3 {
+	font-size: clamp(1.45rem, 2.5vw, 1.8rem);
+	padding-left: 1rem;
+	border-left: 4px solid var(--reading-accent);
+}
+
+.entry-content h4 {
+	font-size: clamp(1.25rem, 2vw, 1.45rem);
+	color: var(--reading-accent);
+}
+
+.entry-content h5 {
+	font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+	font-weight: 700;
+	line-height: 1.35;
+	margin: 1.8em 0 0.55em;
+	letter-spacing: 0.01em;
+	color: var(--reading-accent);
+}
+
+.entry-content h6 {
+	font-family: var(--font-primary);
+	font-size: 0.95rem;
+	font-weight: 800;
+	line-height: 1.4;
+	margin: 1.7em 0 0.5em;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.entry-content h5 + p,
+.entry-content h6 + p {
+	margin-top: 0;
+}
+
+.entry-content ul,
+.entry-content ol {
+	margin: 0 0 1.5em;
+	padding-left: 1.35em;
+}
+
+.entry-content li {
+	margin: 0.42em 0;
+	padding-left: 0.25em;
+}
+
+.entry-content li::marker {
+	color: var(--reading-accent);
+}
+
+.entry-content blockquote {
+	margin: 2rem 0;
+	padding: 1.25rem 1.35rem;
+	border-left: 4px solid var(--reading-accent);
+	background: rgba(255, 255, 255, 0.055);
+	border-radius: 0 8px 8px 0;
+	color: #f5f5f5;
+	font-size: 1.08em;
+}
+
+.entry-content blockquote p:last-child {
+	margin-bottom: 0;
+}
+
+.entry-content hr {
+	width: 100%;
+	height: 1px;
+	margin: 2.5rem 0;
+	border: 0;
+	background: linear-gradient(90deg, transparent, var(--reading-accent), transparent);
+	opacity: 0.55;
+}
+
+.entry-content img {
+	border-radius: 8px;
+}
+
+.entry-content figure,
+.entry-content .wp-block-image {
+	margin: 2rem 0;
+}
+
+.entry-content code,
+.entry-content pre {
+	font-family: Consolas, Monaco, monospace;
+}
+
+.entry-content code {
+	padding: 0.15em 0.35em;
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.09);
+	color: #fff;
+}
+
+.entry-content pre {
+	overflow-x: auto;
+	margin: 1.75rem 0;
+	padding: 1.25rem;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	background: #111114;
+}
+
+.entry-content table {
+	width: 100%;
+	margin: 1.75rem 0;
+	border-collapse: collapse;
+	font-size: 0.95em;
+}
+
+.entry-content table th,
+.entry-content table td {
+	padding: 0.75rem;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.entry-content table th {
+	background: color-mix(in srgb, var(--reading-accent) 24%, #1e1e21);
+	color: #fff;
 }
 
 .texto h3{
-    font-weight: bold;
-    color: red;
+	color: #f4f1e8;
 }
 
 .texto h4{
-    font-weight: bold;
-    color: green;
+	color: var(--reading-accent);
+}
+
+@media (max-width: 575.98px) {
+	.texto {
+		padding: 1.25rem 0.75rem;
+		font-size: 1rem;
+		line-height: 1.72;
+	}
+
+	.entry-content {
+		padding: 1.25rem;
+		border-radius: 10px;
+	}
+
+	.entry-content h2 {
+		margin-top: 1.8em;
+	}
+
+	.entry-content h3 {
+		padding-left: 0.75rem;
+	}
 }
 
 /* TABELAS */
